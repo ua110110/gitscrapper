@@ -73,8 +73,8 @@ python github_emails.py --input [input_csv] --output [output_csv] --token [githu
 - `--token` or `-t`: GitHub API token for authentication (highly recommended to avoid rate limits)
 - `--delay` or `-d`: Delay between API requests in seconds (default: 1.0)
 - `--max-retries` or `-r`: Maximum number of retry attempts for failed requests (default: 3)
-- `--limit` or `-l`: Limit the number of users to process (useful for batch processing)
-- `--skip` or `-s`: Skip the first N users from the input file (default: 0)
+- `--start` or `-s`: Starting position in the input file (1-indexed, default: 1)
+- `--stop` or `-e`: Stopping position in the input file (useful for batch processing)
 - `--resume`: Resume from where you left off, skipping already processed users
 
 #### Examples
@@ -92,16 +92,14 @@ python github_emails.py --input my_stargazers.csv --output my_emails.csv
 # Adjust delay between requests
 python github_emails.py --delay 2.0
 
-# Process only the first 100 users
-python github_emails.py --limit 100
+# Process users from position 1 to 100
+python github_emails.py --start 1 --stop 100
 
-# Skip the first 500 users
-python github_emails.py --skip 500
+# Process the next batch of 100 users
+python github_emails.py --start 101 --stop 200
 
-# Process users in batches
-python github_emails.py --skip 0 --limit 100
-python github_emails.py --skip 100 --limit 100
-python github_emails.py --skip 200 --limit 100
+# Process a specific range of users
+python github_emails.py --start 500 --stop 550
 
 # Resume processing from where you left off
 python github_emails.py --resume
@@ -111,11 +109,11 @@ python github_emails.py --resume
 
 For large datasets, you can use one of these strategies:
 
-1. **Sequential Batches**: Process users in batches of a specific size
+1. **Sequential Ranges**: Process users in specific ranges
    ```
-   python github_emails.py --skip 0 --limit 100
-   python github_emails.py --skip 100 --limit 100
-   python github_emails.py --skip 200 --limit 100
+   python github_emails.py --start 1 --stop 100
+   python github_emails.py --start 101 --stop 200
+   python github_emails.py --start 201 --stop 300
    ```
 
 2. **Resume-Based Processing**: Start processing and resume if interrupted
@@ -173,10 +171,12 @@ The script creates a CSV file with two columns:
 - GitHub URL: The URL to the stargazer's GitHub profile
 
 ### Email Finder Script
-The script creates a CSV file with four columns:
+The script creates a CSV file with the following columns:
 - Username: The GitHub username of the user
 - GitHub URL: The URL to the user's GitHub profile
 - Email: The email address found (if any)
+- Location: The user's location from their GitHub profile (if available)
+- Organization: The user's company/organization from their GitHub profile (if available)
 - Source: Where the email was found (Profile, Commit, Event, Patch, or None)
 
 ## Notes
@@ -184,6 +184,8 @@ The script creates a CSV file with four columns:
 - Both scripts use delays between requests to be respectful to GitHub's servers.
 - If you encounter rate limiting, you might need to authenticate with GitHub API, increase the delay, or use a token.
 - Processing a large number of users can take a significant amount of time, even with authentication.
+- The email finder script will automatically append to an existing output file, so you can process users in batches without overwriting previous results.
+- The script collects additional profile information (location and organization) when available.
 
 ## Ethical Considerations
 
