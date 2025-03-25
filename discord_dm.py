@@ -319,7 +319,6 @@ def main():
     
     # Use the example token if still not provided
     if not auth_token:
-        auth_token = "please enter your token"
         print(f"Using example token: {auth_token}")
     
     # Channel ID (use argument or default)
